@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Appointments - City Care Hospital</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      background: #eef2ff;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #2563eb;
+      color: white;
+      padding: 15px 25px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+    header h1 {
+      font-size: 1.6rem;
+      margin: 0;
+    }
+    .profile {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .profile img {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid white;
+    }
+    .tabs {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+      gap: 15px;
+    }
+    .tab-btn {
+      background: #dbeafe;
+      border: none;
+      flex:1;
+      cursor: pointer;
+      color: #1e3a8a;
+  padding: 20px 28px;   /* more vertical space */
+  font-size: 1.1rem;    /* larger text */
+
+      transition: background 0.3s ease;
+    }
+    .tab-btn.active {
+      background: #2563eb;
+      color: white;
+    }
+    .tab-content {
+      display: none;
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(37, 99, 235, 0.2);
+      padding: 25px 30px;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    h2 {
+      margin-top: 0;
+      color: #2563eb;
+      border-bottom: 2px solid #2563eb;
+      padding-bottom: 6px;
+    }
+    .appointment-card {
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      padding: 16px 22px;
+      margin-bottom: 16px;
+      box-shadow: inset 0 0 8px #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .appointment-info {
+      font-size: 0.95rem;
+      color: #374151;
+    }
+    .appointment-info p {
+      margin: 4px 0;
+    }
+    .status {
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 6px;
+      color: white;
+      font-size: 0.9rem;
+      display: inline-block;
+      align-self: flex-start;
+    }
+    .pending .status {
+      background: orange;
+    }
+    .approved .status {
+      background: green;
+    }
+    select {
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 0.95rem;
+      min-width: 230px;
+      margin-right: 8px;
+    }
+    .btn-assign {
+      background: #2563eb;
+      border: none;
+      color: white;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.3s ease;
+    }
+    .btn-assign:disabled {
+      background: #a5b4fc;
+      cursor: not-allowed;
+    }
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        gap: 10px;
+      }
+      .tabs {
+        flex-wrap: wrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Appointments Management</h1>
+    <div class="profile">
+      <span>Admin</span>
+      <img src="https://via.placeholder.com/45" alt="Profile Picture">
+    </div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="pendingSection">Pending</button>
+    <button class="tab-btn" data-tab="approvedSection">Approved</button>
+  </div>
+
+  <div id="pendingSection" class="tab-content active">
+    <h2>Pending Appointments</h2>
+    <div id="pendingAppointments"></div>
+  </div>
+
+  <div id="approvedSection" class="tab-content">
+    <h2>Approved Appointments</h2>
+    <div id="approvedAppointments"></div>
+  </div>
+
+<script>
+  // Doctors data
+  const doctors = {
+    "Orthopedics": [
+      { name: "Dr. Krishna", qualification: "MBBS, MS (Orthopedics)", specialization: "Joint replacement & fracture management specialist." },
+      { name: "Dr. Anjali", qualification: "MBBS, D.Ortho", specialization: "Expert in sports injuries and arthritis care." }
+    ],
+    "Neurology": [
+      { name: "Dr. Ramesh", qualification: "MBBS, DM (Neurology)", specialization: "Stroke and epilepsy specialist." },
+      { name: "Dr. Meera", qualification: "MBBS, MD (Neuro)", specialization: "Dementia and Parkinson's disease specialist." }
+    ],
+    "Cardiology": [
+      { name: "Dr. Rajesh", qualification: "MBBS, DM (Cardiology)", specialization: "Expert in angioplasty and bypass surgery." },
+      { name: "Dr. Kavita", qualification: "MBBS, MD", specialization: "Specialist in arrhythmia and hypertension." }
+    ],
+    "ENT": [
+      { name: "Dr. Sameer", qualification: "MBBS, MS (ENT)", specialization: "Specialist in sinus and ear surgeries." },
+      { name: "Dr. Priya", qualification: "MBBS, MS", specialization: "Expert in hearing disorders and allergy care." }
+    ],
+    "Dermatology": [
+      { name: "Dr. Neha", qualification: "MBBS, MD (Dermatology)", specialization: "Specialist in acne and skin rejuvenation." },
+      { name: "Dr. Arjun", qualification: "MBBS, MD", specialization: "Expert in psoriasis and cosmetic dermatology." }
+    ],
+    "Gynecology": [
+      { name: "Dr. Lakshmi", qualification: "MBBS, MD (Gynecology)", specialization: "Infertility and maternity care specialist." },
+      { name: "Dr. Divya", qualification: "MBBS, DGO", specialization: "Menstrual disorder and preventive women's health expert." }
+    ],
+    "Oncology": [
+      { name: "Dr. Sanjay", qualification: "MBBS, DM (Oncology)", specialization: "Chemotherapy & radiation specialist." },
+      { name: "Dr. Bhaskar", qualification: "MBBS, MD", specialization: "Immunotherapy & palliative care specialist." }
+    ],
+    "Nephrology": [
+      { name: "Dr. Mohan", qualification: "MBBS, DM (Nephrology)", specialization: "Kidney transplant and dialysis specialist." },
+      { name: "Dr. Sneha", qualification: "MBBS, MD", specialization: "Expert in chronic kidney disease management." }
+    ],
+    "General": [
+      { name: "Dr. Rishi", qualification: "MBBS, MD (Internal Medicine)", specialization: "Specialist in fever, infections, and general health check-ups." },
+      { name: "Dr. Sadhvik", qualification: "MBBS, DNB (General Medicine)", specialization: "Expert in hypertension, diabetes, and common ailments." }
+    ]
+  };
+
+  // Elements
+  const pendingContainer = document.getElementById('pendingAppointments');
+  const approvedContainer = document.getElementById('approvedAppointments');
+
+  let appointments = JSON.parse(localStorage.getItem('appointments')) || [];
+
+  function splitAppointments() {
+    const pending = [];
+    const approved = [];
+    appointments.forEach(appt => {
+      if (appt.doctor) approved.push(appt);
+      else pending.push(appt);
+    });
+    return { pending, approved };
+  }
+
+  function renderAppointments() {
+    const { pending, approved } = splitAppointments();
+
+    pendingContainer.innerHTML = '';
+    approvedContainer.innerHTML = '';
+
+    if (pending.length === 0) {
+      const p = document.createElement('p');
+      p.textContent = 'No pending appointments.';
+      p.style.textAlign = 'center';
+      p.style.color = '#6b7280';
+      pendingContainer.appendChild(p);
+    }
+
+    if (approved.length === 0) {
+      const p = document.createElement('p');
+      p.textContent = 'No approved appointments.';
+      p.style.textAlign = 'center';
+      p.style.color = '#6b7280';
+      approvedContainer.appendChild(p);
+    }
+
+    pending.forEach(appt => {
+      const realIndex = appointments.findIndex(a =>
+        a.name === appt.name &&
+        a.date === appt.date &&
+        a.slot === appt.slot
+      );
+      const card = createAppointmentCard(appt, false, realIndex);
+      pendingContainer.appendChild(card);
+    });
+
+    approved.forEach(appt => {
+      const realIndex = appointments.findIndex(a =>
+        a.name === appt.name &&
+        a.date === appt.date &&
+        a.slot === appt.slot
+      );
+      const card = createAppointmentCard(appt, true, realIndex);
+      approvedContainer.appendChild(card);
+    });
+  }
+
+  function createAppointmentCard(appt, isApproved, idx) {
+    const card = document.createElement('div');
+    card.className = 'appointment-card ' + (isApproved ? 'approved' : 'pending');
+
+    const infoDiv = document.createElement('div');
+    infoDiv.className = 'appointment-info';
+
+    infoDiv.innerHTML = `
+      <p><strong>Name:</strong> ${appt.name}</p>
+      <p><strong>Date:</strong> ${appt.date}</p>
+      <p><strong>Department:</strong> ${appt.department}</p>
+      <p><strong>Slot:</strong> ${appt.slot}</p>
+    `;
+
+    if (isApproved) {
+      infoDiv.innerHTML += `
+        <p><strong>Doctor Assigned:</strong> ${appt.doctor}</p>
+        <p><strong>Qualification:</strong> ${appt.qualification}</p>
+        <p><strong>Specialization:</strong> ${appt.specialization}</p>
+      `;
+      card.appendChild(infoDiv);
+
+      const statusSpan = document.createElement('span');
+      statusSpan.className = 'status approved';
+      statusSpan.textContent = 'Approved';
+      card.appendChild(statusSpan);
+
+    } else {
+      card.appendChild(infoDiv);
+
+      const statusSpan = document.createElement('span');
+      statusSpan.className = 'status pending';
+      statusSpan.textContent = 'Pending Approval';
+      card.appendChild(statusSpan);
+
+      const doctorSelectDiv = document.createElement('div');
+      doctorSelectDiv.style.display = 'flex';
+      doctorSelectDiv.style.alignItems = 'center';
+      doctorSelectDiv.style.marginTop = '10px';
+
+      const select = document.createElement('select');
+      select.id = `doctorSelect-${idx}`;
+      select.dataset.apptIndex = idx;
+
+      const deptDoctors = doctors[appt.department] || [];
+      select.innerHTML = `<option value="">-- Select Doctor --</option>`;
+
+      deptDoctors.forEach((doc, dIdx) => {
+        const option = document.createElement('option');
+        option.value = dIdx;
+        option.textContent = `${doc.name} (${doc.qualification})`;
+        select.appendChild(option);
+      });
+
+      doctorSelectDiv.appendChild(select);
+
+      const assignBtn = document.createElement('button');
+      assignBtn.className = 'btn-assign';
+      assignBtn.textContent = 'Assign & Approve';
+      assignBtn.disabled = true;
+
+      doctorSelectDiv.appendChild(assignBtn);
+      card.appendChild(doctorSelectDiv);
+
+      select.addEventListener('change', () => {
+        assignBtn.disabled = (select.value === "");
+      });
+
+      assignBtn.addEventListener('click', () => {
+        const selectedIndex = select.value;
+        if (selectedIndex === "") return;
+
+        appointments = JSON.parse(localStorage.getItem('appointments')) || [];
+
+        if (idx !== -1 && appointments[idx]) {
+          const docData = deptDoctors[selectedIndex];
+
+        
+appointments[idx].doctor = {
+  name: docData.name,
+  qualification: docData.qualification,
+  specialization: docData.specialization
+};
+
+          localStorage.setItem('appointments', JSON.stringify(appointments));
+          renderAppointments();
+        }
+      });
+    }
+
+    return card;
+  }
+
+  // Tab switching
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const tabContents = document.querySelectorAll('.tab-content');
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabBtns.forEach(b => b.classList.remove('active'));
+      tabContents.forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // Initial render
+  renderAppointments();
+</script>
+<button onclick="goBack()" 
+        style="
+          position: fixed;
+          bottom: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          background-color: #3b82f6; 
+          color: white; 
+          border: none; 
+          padding: 10px 16px; 
+          border-radius: 8px; 
+          font-size: 16px; 
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        ">
+  ← Back
+</button>
+
+<script>
+  function goBack() {
+    window.history.back();
+  }
+</script>
+</body>
+</html>
