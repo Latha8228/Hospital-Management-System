@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Book Appointment</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Segoe+UI&display=swap');
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #e0e7ff, #f9fafb);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .appointment-container {
+      background: #fff;
+      padding: 32px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(37, 99, 235, 0.15);
+      max-width: 650px;
+      width: 95%;
+      animation: fadeSlideIn 0.7s ease forwards;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #1e3a8a;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    label {
+      font-weight: 600;
+      color: #374151;
+      font-size: 14px;
+    }
+
+    input, textarea {
+      padding: 12px 14px;
+      border: 1.8px solid #d1d5db;
+      border-radius: 12px;
+      font-size: 15px;
+      color: #111827;
+    }
+
+    input[disabled] {
+      background-color: #f3f4f6;
+      color: #6b7280;
+    }
+
+    textarea {
+      min-height: 90px;
+    }
+
+    .btn {
+      padding: 14px;
+      border-radius: 14px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+    }
+
+    .submit-btn {
+      background: linear-gradient(45deg, #16a34a, #4ade80);
+      color: white;
+    }
+
+    .back-btn {
+      background: #f3f4f6;
+      color: #374151;
+      border: 1.8px solid #d1d5db;
+    }
+
+    /* Popup Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 14px;
+      max-width: 500px;
+      width: 90%;
+    }
+
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+
+    .day {
+      width: 80px;
+      height: 70px;
+      border-radius: 8px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .available {
+      background: #16a34a;
+      color: white;
+    }
+
+    .unavailable {
+      background: #dc2626;
+      color: white;
+    }
+
+    @keyframes fadeSlideIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="appointment-container">
+    <h1>📅 Book Appointment</h1>
+    <form id="appointmentForm">
+      <label>Full Name:</label>
+      <input type="text" id="name" disabled />
+
+      <label>Email:</label>
+      <input type="email" id="email" disabled />
+
+      <label>Phone:</label>
+      <input type="tel" id="phone" disabled />
+
+      <label>Age:</label>
+      <input type="text" id="age" disabled />
+
+      <label>Gender:</label>
+      <input type="text" id="gender" disabled />
+
+      <label>Address:</label>
+      <input type="text" id="address" disabled />
+
+      <label>Your Problem:</label>
+      <textarea id="problem" placeholder="Describe your problem..." required></textarea>
+
+      <label>Department:</label>
+      <input type="text" id="department" disabled />
+
+      <label>Ward No:</label>
+      <input type="text" id="ward" disabled />
+
+      <label>Appointment Date:</label>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <input type="text" id="date" disabled required />
+        <button type="button" class="btn back-btn" onclick="openModal()">Select Date</button>
+      </div>
+
+      <button type="submit" class="btn submit-btn">Proceed to Payment</button>
+    </form>
+    <button class="btn back-btn" onclick="window.location.href='homepage.html'">⬅ Back</button>
+  </div>
+
+  <!-- Date Picker Modal -->
+  <div id="dateModal" class="modal">
+    <div class="modal-content">
+      <h3>Select Appointment Date</h3>
+      <div id="calendar" class="calendar"></div>
+      <br>
+      <button class="btn back-btn" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+
+  <script>
+    // Load user info
+    window.onload = function () {
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      if (!currentUser) {
+        alert("Not logged in!");
+        window.location.href = "index.html";
+        return;
+      }
+      document.getElementById("name").value = currentUser.name || "";
+      document.getElementById("email").value = currentUser.email || "";
+      document.getElementById("phone").value = currentUser.phone || "";
+      document.getElementById("gender").value = currentUser.gender || "";
+      document.getElementById("address").value = currentUser.address || "";
+
+      if (currentUser.dob) {
+        const dob = new Date(currentUser.dob);
+        const age = new Date().getFullYear() - dob.getFullYear();
+        document.getElementById("age").value = age;
+      }
+    };
+
+    // Department auto-detection
+    const departmentKeywords = {
+      Cardiology: ["heart","chest pain","palpitation","breath"],
+      Neurology: ["headache","seizure","paralysis","brain","nerves"],
+      Orthopedics: ["bone","fracture","joint","back pain","knee"],
+      Dermatology: ["skin","rash","acne","allergy"],
+      ENT: ["ear","nose","throat","hearing","tonsil"],
+      Gastroenterology: ["stomach","liver","digestion","vomit","abdomen"],
+      Oncology: ["cancer","tumor","chemotherapy"],
+      Pediatrics: ["child","baby","infant","kids"],
+    };
+    const wardNumbers = {
+      Cardiology:"201", Neurology:"301", Orthopedics:"401",
+      Dermatology:"501", ENT:"601", Gastroenterology:"701",
+      Oncology:"801", Pediatrics:"901"
+    };
+
+    document.getElementById("problem").addEventListener("input", function () {
+      const problemText = this.value.toLowerCase();
+      let selectedDept = "General";
+      outer: for (const dept in departmentKeywords) {
+        for (const word of departmentKeywords[dept]) {
+          if (problemText.includes(word)) {
+            selectedDept = dept;
+            break outer;
+          }
+        }
+      }
+      document.getElementById("department").value = selectedDept;
+      document.getElementById("ward").value = wardNumbers[selectedDept] || "101";
+    });
+
+    // Modal controls
+    function openModal() {
+      document.getElementById("dateModal").style.display = "flex";
+      renderCalendar();
+    }
+    function closeModal() {
+      document.getElementById("dateModal").style.display = "none";
+    }
+
+    // Render schedule
+    function renderCalendar() {
+      const calendarEl = document.getElementById("calendar");
+      calendarEl.innerHTML = "";
+      const savedSchedule = JSON.parse(localStorage.getItem("schedule")) || {};
+      let today = new Date();
+
+      for (let i = 0; i < 15; i++) {
+        let day = new Date(today);
+        day.setDate(today.getDate() + i);
+        let dateKey = day.toISOString().split("T")[0];
+        let info = savedSchedule[dateKey] || { status: "available" };
+
+        let div = document.createElement("div");
+        div.classList.add("day", info.status === "available" ? "available" : "unavailable");
+        div.innerHTML = `
+          <div>${day.getDate()}</div>
+          <div style="font-size:12px">${day.toLocaleString("default", { month:"short" })}</div>
+        `;
+
+        if (info.status === "available") {
+          div.addEventListener("click", () => {
+            document.getElementById("date").value = dateKey;
+            closeModal();
+          });
+        }
+
+        calendarEl.appendChild(div);
+      }
+    }
+
+    // Submit
+    document.getElementById("appointmentForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const problem = document.getElementById("problem").value;
+      const department = document.getElementById("department").value;
+      const ward = document.getElementById("ward").value;
+      const date = document.getElementById("date").value;
+
+      if (!date) {
+        alert("Please select an appointment date!");
+        return;
+      }
+
+      localStorage.setItem("appointmentData", JSON.stringify({
+        problem, department, ward, date
+      }));
+
+      alert("Redirecting to payment...");
+      window.location.href = "payment.html";
+    });
+  </script>
+</body>
+</html>
