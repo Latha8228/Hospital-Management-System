@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hospital Intro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #0a0f2c, #1e3c72, #2a5298);
+      background-size: 200% 200%;
+      animation: bgMove 6s ease-in-out infinite;
+      overflow: hidden;
+      transition: opacity 1s ease;
+      cursor: pointer;
+    }
+
+    body.fade-out {
+      opacity: 0;
+    }
+
+    h1 {
+      font-family: "Playfair Display", serif;
+      font-size: 3.5rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      text-align: center;
+      background: linear-gradient(90deg, #fff, #00ccff, #fff);
+      background-size: 200% auto;
+      color: transparent;
+      -webkit-background-clip: text;
+      background-clip: text;
+      animation: glowGrow 2s ease-in-out forwards, shine 2s ease-in-out forwards 0.5s;
+    }
+
+    /* Glow + grow effect */
+    @keyframes glowGrow {
+      0% {
+        text-shadow: 0 0 5px #66ccff;
+        font-size: 3.5rem;
+        opacity: 0.6;
+      }
+      100% {
+        text-shadow: 0 0 25px #ffffff, 0 0 50px #00ccff;
+        font-size: calc(3.5rem + 10px);
+        opacity: 1;
+      }
+    }
+
+    /* Shine inside text only */
+    @keyframes shine {
+      0% { background-position: 200% center; }
+      100% { background-position: 0% center; }
+    }
+
+    /* Background shifting */
+    @keyframes bgMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Loading bar container */
+    .loading-bar {
+      width: 250px;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      margin-top: 30px;
+      overflow: hidden;
+      display: none; /* hidden initially */
+    }
+
+    /* Loading progress */
+    .loading-progress {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #00ccff, #ffffff);
+    }
+
+    .loading-bar.active .loading-progress {
+      animation: load 2s ease-in-out forwards;
+    }
+
+    @keyframes load {
+      from { width: 0%; }
+      to { width: 100%; }
+    }
+  </style>
+</head>
+<body onclick="startLoading()">
+  <h1>City Care Hospital</h1>
+  <div class="loading-bar" id="loadingBar">
+    <div class="loading-progress"></div>
+  </div>
+
+  <script>
+    let clicked = false;
+    function startLoading() {
+      if (clicked) return; // prevent multiple clicks
+      clicked = true;
+
+      const bar = document.getElementById("loadingBar");
+      bar.style.display = "block";
+      bar.classList.add("active");
+
+      setTimeout(() => {
+        document.body.classList.add("fade-out");
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 1000); // fade timing
+      }, 2000); // after loading completes
+    }
+  </script>
+</body>
+</html>
