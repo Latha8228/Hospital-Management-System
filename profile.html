@@ -1,0 +1,274 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile</title>
+  <style>
+    /* Background outside the container */
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #dbeafe, #e0f2fe); /* soft blue gradient */
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    /* Profile container */
+    .profile-container {
+      background: #fff; /* container white */
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+      max-width: 450px;
+      width: 90%;
+      text-align: center;
+      animation: fade-in 1s ease-in-out;
+    }
+
+    .profile-container h1 {
+      margin-bottom: 20px;
+      color: #111827;
+      font-size: 26px;
+    }
+
+    .profile-pic {
+      margin-bottom: 20px;
+    }
+
+    .profile-pic img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #2563eb;
+      transition: transform 0.3s ease;
+    }
+
+    .profile-pic img:hover {
+      transform: scale(1.05);
+    }
+
+    #changePicBtn {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      margin-top: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+      display: none; /* only in edit mode */
+    }
+
+    #changePicBtn:hover {
+      background: #1e3a8a;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      text-align: left;
+      margin-top: 10px;
+    }
+
+    form label {
+      font-weight: bold;
+      color: #374151;
+      font-size: 14px;
+    }
+
+    form input, form select {
+      padding: 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      transition: 0.3s;
+    }
+
+    form input:disabled, form select:disabled {
+      background: #f3f4f6;
+      cursor: not-allowed;
+    }
+
+    form input:focus, form select:focus {
+      border-color: #2563eb;
+      outline: none;
+      box-shadow: 0 0 6px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn {
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: 0.3s;
+    }
+
+    .edit-btn {
+      background: #2563eb;
+      color: white;
+    }
+
+    .edit-btn:hover {
+      background: #1e3a8a;
+    }
+
+    .save-btn {
+      background: #16a34a;
+      color: white;
+      display: none; /* hidden until edit */
+    }
+
+    .save-btn:hover {
+      background: #15803d;
+    }
+
+    .back-btn {
+      background: #f3f4f6;
+      color: #111827;
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      cursor: pointer;
+      transition: background 0.3s;
+      width: 100%;
+    }
+
+    .back-btn:hover {
+      background: #e5e7eb;
+    }
+
+    @keyframes fade-in {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="profile-container">
+    <h1>👤 User Profile</h1>
+
+    <!-- Profile Picture -->
+    <div class="profile-pic">
+      <img id="profileImage" src="default-avatar.png" alt="Profile Picture">
+      <input type="file" id="uploadPic" accept="image/*" style="display:none">
+      <button id="changePicBtn">Change Picture</button>
+    </div>
+
+    <!-- User Info Form -->
+    <form id="profileForm">
+      <label>Full Name:</label>
+      <input type="text" id="name" disabled>
+
+      <label>Email:</label>
+      <input type="email" id="email" disabled>
+
+      <label>Phone Number:</label>
+      <input type="tel" id="phone" disabled>
+
+      <label>Date of Birth:</label>
+      <input type="date" id="dob" disabled>
+
+      <label>Gender:</label>
+      <select id="gender" disabled>
+        <option value="">Select</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+        <option value="Other">Other</option>
+      </select>
+
+      <label>Address:</label>
+      <input type="text" id="address" disabled>
+
+      <button type="button" class="btn edit-btn" id="editBtn">✏ Edit</button>
+      <button type="submit" class="btn save-btn" id="saveBtn">💾 Save Changes</button>
+    </form>
+
+    <button class="back-btn" onclick="window.location.href='homepage.html'">⬅ Back to Home</button>
+  </div>
+
+  <script>
+    // Load user data from localStorage
+    window.onload = function() {
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      if (!currentUser) {
+        alert("You are not logged in! Redirecting...");
+        window.location.href = "login.html";
+        return;
+      }
+
+      document.getElementById("name").value = currentUser.name || "";
+      document.getElementById("email").value = currentUser.email || "";
+      document.getElementById("phone").value = currentUser.phone || "";
+      document.getElementById("dob").value = currentUser.dob || "";
+      document.getElementById("gender").value = currentUser.gender || "";
+      document.getElementById("address").value = currentUser.address || "";
+      document.getElementById("profileImage").src = currentUser.profilePic || "default-avatar.png";
+    };
+
+    const editBtn = document.getElementById("editBtn");
+    const saveBtn = document.getElementById("saveBtn");
+    const changePicBtn = document.getElementById("changePicBtn");
+
+    // Enable edit mode
+    editBtn.addEventListener("click", function() {
+      document.querySelectorAll("#profileForm input, #profileForm select").forEach(input => {
+        input.disabled = false;
+      });
+      editBtn.style.display = "none";
+      saveBtn.style.display = "block";
+      changePicBtn.style.display = "inline-block";
+    });
+
+    // Save changes
+    document.getElementById("profileForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      let currentUser = JSON.parse(localStorage.getItem("currentUser")) || {};
+
+      currentUser.name = document.getElementById("name").value;
+      currentUser.email = document.getElementById("email").value;
+      currentUser.phone = document.getElementById("phone").value;
+      currentUser.dob = document.getElementById("dob").value;
+      currentUser.gender = document.getElementById("gender").value;
+      currentUser.address = document.getElementById("address").value;
+
+      localStorage.setItem("currentUser", JSON.stringify(currentUser));
+      alert("✅ Profile updated successfully!");
+
+      document.querySelectorAll("#profileForm input, #profileForm select").forEach(input => {
+        input.disabled = true;
+      });
+      editBtn.style.display = "block";
+      saveBtn.style.display = "none";
+      changePicBtn.style.display = "none";
+    });
+
+    // Change profile picture
+    changePicBtn.addEventListener("click", () => {
+      document.getElementById("uploadPic").click();
+    });
+
+    document.getElementById("uploadPic").addEventListener("change", function() {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById("profileImage").src = e.target.result;
+          let currentUser = JSON.parse(localStorage.getItem("currentUser")) || {};
+          currentUser.profilePic = e.target.result;
+          localStorage.setItem("currentUser", JSON.stringify(currentUser));
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  </script>
+</body>
+</html>
