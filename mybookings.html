@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My Bookings - R S Hospital</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Segoe+UI&display=swap');
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f3f4f6;
+      margin: 0;
+      padding: 40px 20px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .container {
+      max-width: 900px;
+      width: 100%;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+      padding: 30px 40px;
+      animation: fadeInUp 0.7s ease forwards;
+    }
+
+    h1 {
+      color: #1e3a8a;
+      margin-bottom: 30px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 2.5rem;
+      letter-spacing: 1.2px;
+    }
+
+    .booking-card {
+      background: #f9fafb;
+      border-radius: 12px;
+      box-shadow: inset 0 0 10px #e5e7eb;
+      padding: 20px 25px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: box-shadow 0.3s ease;
+      cursor: default;
+    }
+
+    .booking-card:hover {
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
+    }
+
+    .booking-info {
+      max-width: 75%;
+    }
+
+    .booking-info h2 {
+      margin: 0 0 6px 0;
+      color: #2563eb;
+      font-size: 1.3rem;
+    }
+
+    .booking-info p {
+      margin: 4px 0;
+      color: #374151;
+      font-size: 0.9rem;
+      line-height: 1.3;
+    }
+
+    .booking-info p span {
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .view-btn {
+      padding: 12px 22px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.5);
+      cursor: pointer;
+      transition: background 0.3s ease;
+      user-select: none;
+    }
+
+    .view-btn:hover {
+      background: #1e40af;
+    }
+
+    .no-bookings {
+      text-align: center;
+      color: #6b7280;
+      font-size: 1.2rem;
+      margin-top: 80px;
+    }
+
+    /* OP Sheet Modal Styles */
+    #opSheetModal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    #opSheetModal.active {
+      display: flex;
+    }
+
+    .op-sheet-modal-content {
+      background: #fff;
+      padding: 30px 35px;
+      border-radius: 14px;
+      box-shadow: 0 10px 35px rgba(0,0,0,0.15);
+      max-width: 800px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      animation: slideUp 0.4s ease forwards;
+    }
+
+    /* Close button */
+    .close-btn {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 28px;
+      font-weight: bold;
+      color: #374151;
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.3s ease;
+    }
+
+    .close-btn:hover {
+      color: #2563eb;
+    }
+
+    /* OP Sheet styling (matching your op-sheet.html) */
+    .op-sheet {
+      font-family: 'Segoe UI', sans-serif;
+      background: #fff;
+      border: 2px solid #111827;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+      color: #1f2937;
+    }
+
+    .op-sheet .header {
+      text-align: center;
+      border-bottom: 2px solid #111827;
+      padding-bottom: 15px;
+      position: relative;
+      margin-bottom: 25px;
+    }
+
+    .op-sheet .header h1 {
+      margin: 0;
+      color: #1e3a8a;
+      font-size: 1.8rem;
+    }
+
+    .op-sheet .header img {
+      width: 60px;
+      position: absolute;
+      top: 15px;
+      left: 20px;
+      opacity: 0.6;
+    }
+
+    .op-sheet .details {
+      display: flex;
+      gap: 40px;
+      flex-wrap: wrap;
+      margin-bottom: 25px;
+    }
+
+    .op-sheet .details > div {
+      flex: 1 1 45%;
+      background: #f9fafb;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: inset 0 0 10px #e5e7eb;
+      min-width: 300px;
+    }
+
+    .op-sheet h2 {
+      color: #111827;
+      margin-bottom: 15px;
+      border-bottom: 1.5px solid #d1d5db;
+      padding-bottom: 8px;
+    }
+
+    .op-sheet table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .op-sheet td {
+      padding: 8px;
+      border-bottom: 1px solid #e5e7eb;
+      vertical-align: top;
+    }
+
+    .op-sheet td:first-child {
+      font-weight: 600;
+      color: #374151;
+      width: 40%;
+    }
+
+    .op-sheet td:last-child {
+      color: #1f2937;
+    }
+
+    .op-sheet .footer {
+      text-align: right;
+      font-style: italic;
+      color: #374151;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(25px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .booking-card {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .booking-info {
+        max-width: 100%;
+        margin-bottom: 15px;
+      }
+
+      .view-btn {
+        width: 100%;
+        text-align: center;
+      }
+
+      .op-sheet .details > div {
+        flex-basis: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>My Booked Appointments</h1>
+    <div id="bookingsList">
+      <!-- Bookings will be loaded here -->
+    </div>
+  </div>
+
+  <!-- OP Sheet Modal -->
+  <div id="opSheetModal">
+    <div class="op-sheet-modal-content">
+      <span class="close-btn" title="Close">&times;</span>
+      <div class="op-sheet" id="opSheetContent">
+        <div class="header">
+          <img src="hospital_stamp.png" alt="Hospital Stamp" />
+          <h1>🏥 R S Hospital</h1>
+          <p>Outpatient Department - OP Sheet</p>
+        </div>
+
+        <div class="details">
+          <div class="patient-details">
+            <h2>Patient Details</h2>
+            <table>
+              <tbody>
+                <tr><td>Name:</td><td id="patientName"></td></tr>
+                <tr><td>Gender:</td><td id="patientGender"></td></tr>
+                <tr><td>Age:</td><td id="patientAge"></td></tr>
+                <tr><td>Phone:</td><td id="patientPhone"></td></tr>
+                <tr><td>Email:</td><td id="patientEmail"></td></tr>
+                <tr><td>Address:</td><td id="patientAddress"></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="appointment-details">
+            <h2>Appointment Details</h2>
+            <table>
+              <tbody>
+                <tr><td>Problem:</td><td id="problem"></td></tr>
+                <tr><td>Department:</td><td id="department"></td></tr>
+                <tr><td>Ward:</td><td id="ward"></td></tr>
+                <tr><td>Date:</td><td id="date"></td></tr>
+                <tr><td>Slot:</td><td id="slot"></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="footer">
+          <p>Thank you for choosing R S Hospital. Wishing you good health!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const bookingsList = document.getElementById("bookingsList");
+    const modal = document.getElementById("opSheetModal");
+    const closeBtn = modal.querySelector(".close-btn");
+
+    // Elements inside OP Sheet
+    const patientName = document.getElementById("patientName");
+    const patientGender = document.getElementById("patientGender");
+    const patientAge = document.getElementById("patientAge");
+    const patientPhone = document.getElementById("patientPhone");
+    const patientEmail = document.getElementById("patientEmail");
+    const patientAddress = document.getElementById("patientAddress");
+
+    const problem = document.getElementById("problem");
+    const department = document.getElementById("department");
+    const ward = document.getElementById("ward");
+    const date = document.getElementById("date");
+    const slot = document.getElementById("slot");
+
+    // Load bookings from localStorage
+    const bookings = JSON.parse(localStorage.getItem("myBookings")) || [];
+
+    if (bookings.length === 0) {
+      bookingsList.innerHTML = '<p class="no-bookings">You have no booked appointments yet.</p>';
+    } else {
+      bookings.forEach((booking, index) => {
+        const bookingCard = document.createElement("div");
+        bookingCard.className = "booking-card";
+
+        bookingCard.innerHTML = `
+          <div class="booking-info">
+            <h2>Appointment #${booking.opNumber || index + 1}</h2>
+            <p><span>Name:</span> ${booking.name}</p>
+            <p><span>Date:</span> ${new Date(booking.date).toLocaleDateString()}</p>
+            <p><span>Department:</span> ${booking.department}</p>
+            <p><span>Slot:</span> ${booking.slot}</p>
+          </div>
+          <button class="view-btn" data-index="${index}">View OP Sheet</button>
+        `;
+
+        bookingsList.appendChild(bookingCard);
+      });
+    }
+
+    // Show modal with OP Sheet details
+    function showOpSheet(index) {
+      const b = bookings[index];
+
+      patientName.textContent = b.name || "N/A";
+      patientGender.textContent = b.gender || "N/A";
+      patientAge.textContent = b.age || "N/A";
+      patientPhone.textContent = b.phone || "N/A";
+      patientEmail.textContent = b.email || "N/A";
+      patientAddress.textContent = b.address || "N/A";
+
+      problem.textContent = b.problem || "N/A";
+      department.textContent = b.department || "N/A";
+      ward.textContent = b.ward || "N/A";
+      date.textContent = new Date(b.date).toLocaleDateString() || "N/A";
+      slot.textContent = b.slot || "N/A";
+
+      modal.classList.add("active");
+    }
+if (appt.doctor) {
+  opSheetContent.innerHTML += `
+    <h2>Doctor Details</h2>
+    <table>
+      <tr><td>Doctor:</td><td>${appt.doctor.name}</td></tr>
+      <tr><td>Qualification:</td><td>${appt.doctor.qualification}</td></tr>
+      <tr><td>Specialization:</td><td>${appt.doctor.specialization}</td></tr>
+    </table>
+    <p style="margin-top:12px; font-weight:bold; color:#1e3a8a;">
+      ${appt.doctor.name} has approved to check you on ${appt.date}. Please be present by morning 9.
+    </p>
+  `;
+}
+
+    // Close modal
+    function closeModal() {
+      modal.classList.remove("active");
+    }
+
+    // Event delegation for View OP Sheet buttons
+    bookingsList.addEventListener("click", e => {
+      if (e.target.classList.contains("view-btn")) {
+        const index = e.target.getAttribute("data-index");
+        showOpSheet(index);
+      }
+    });
+
+    closeBtn.addEventListener("click", closeModal);
+
+    // Close modal when clicking outside modal content
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    // Close modal on Escape key
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape" && modal.classList.contains("active")) {
+        closeModal();
+      }
+    });
+  </script>
+</body>
+</html>
