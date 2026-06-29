@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Payment with mCoins</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f4ff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      flex-direction: column;
+      transition: background-color 0.5s ease;
+    }
+
+    .payment-container {
+      background: #fff;
+      padding: 36px 44px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(37, 99, 235, 0.15);
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+      animation: fadeIn 0.8s ease forwards;
+      position: relative;
+      z-index: 10;
+      transition: all 0.5s ease;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      color: #1e40af;
+      font-weight: 700;
+      font-size: 2rem;
+    }
+
+    p {
+      margin: 12px 0;
+      font-size: 1.1rem;
+      color: #334155;
+    }
+
+    .highlight {
+      font-weight: 700;
+      color: #2563eb;
+    }
+
+    .btn {
+      padding: 14px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: background 0.3s ease;
+      width: 100%;
+      font-size: 1.1rem;
+      font-weight: 700;
+      box-shadow: 0 3px 10px rgba(37, 99, 235, 0.4);
+    }
+
+    .pay-btn {
+      background: #16a34a;
+      color: white;
+    }
+    .pay-btn:hover {
+      background: #15803d;
+      box-shadow: 0 6px 16px rgba(22, 163, 74, 0.7);
+    }
+
+    .back-btn {
+      background: #e0e7ff;
+      color: #1e40af;
+      border: 1px solid #c7d2fe;
+      box-shadow: none;
+      font-weight: 600;
+    }
+    .back-btn:hover {
+      background: #c7d2fe;
+    }
+
+    /* Buy coins button (shown only on failure) */
+    #buyCoinsBtn {
+      display: none;
+      background: #f59e0b;
+      color: #fff;
+      font-weight: 700;
+      margin-top: 20px;
+      box-shadow: 0 5px 12px rgba(245, 158, 11, 0.6);
+    }
+    #buyCoinsBtn:hover {
+      background: #d97706;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Confetti canvas */
+    #confetti-canvas {
+      pointer-events: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 9999;
+      display: none;
+    }
+
+    /* Success tick animation */
+    .success-container {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      color: #fff;
+    }
+
+    .tick-circle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 5px solid #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 4rem;
+      animation: pop 0.7s ease forwards;
+      transform: scale(0);
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="payment-container">
+    <h1>💰 Pay with mCoins</h1>
+    <p>Patient: <span id="patientName" class="highlight"></span></p>
+    <p>Current Balance: <span id="walletBalance" class="highlight">0</span> mCoins</p>
+    <p>Appointment Fee: <span id="fee" class="highlight">200</span> mCoins</p>
+
+    <button id="payBtn" class="btn pay-btn">✅ Pay & Confirm</button>
+    <button class="btn back-btn" onclick="window.location.href='appointment.html'">⬅ Back to Appointment</button>
+    <button id="buyCoinsBtn" class="btn">💳 Buy Coins</button>
+  </div>
+
+  <!-- Success animation container -->
+  <div class="success-container" id="successContainer">
+    <div class="tick-circle">✔️</div>
+    <h2>Payment Successful!</h2>
+  </div>
+
+  <canvas id="confetti-canvas"></canvas>
+
+  <script>
+    const FEE = 200;
+    let balance = 0;
+    let currentUser;
+
+    const payBtn = document.getElementById('payBtn');
+    const walletBalanceSpan = document.getElementById('walletBalance');
+    const buyCoinsBtn = document.getElementById('buyCoinsBtn');
+    const paymentContainer = document.querySelector('.payment-container');
+    const successContainer = document.getElementById('successContainer');
+
+    // Confetti setup
+    const confettiCanvas = document.getElementById("confetti-canvas");
+    const ctx = confettiCanvas.getContext("2d");
+    let confettiElements = [];
+    let confettiAnimationFrame;
+
+    function resizeCanvas() {
+      confettiCanvas.width = window.innerWidth;
+      confettiCanvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    class ConfettiParticle {
+      constructor() {
+        this.x = Math.random() * confettiCanvas.width;
+        this.y = Math.random() * confettiCanvas.height - confettiCanvas.height;
+        this.radius = Math.random() * 6 + 4;
+        this.color = `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`;
+        this.speed = Math.random() * 3 + 2;
+        this.tilt = Math.random() * 10 - 10;
+        this.tiltSpeed = Math.random() * 0.1 + 0.05;
+        this.tiltAngle = 0;
+      }
+      update() {
+        this.y += this.speed;
+        this.tiltAngle += this.tiltSpeed;
+        this.tilt = Math.sin(this.tiltAngle) * 15;
+        if (this.y > confettiCanvas.height) {
+          this.y = -10;
+          this.x = Math.random() * confettiCanvas.width;
+          this.speed = Math.random() * 3 + 2;
+        }
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.lineWidth = this.radius / 2;
+        ctx.strokeStyle = this.color;
+        ctx.moveTo(this.x + this.tilt + this.radius / 2, this.y);
+        ctx.lineTo(this.x + this.tilt, this.y + this.tilt + this.radius / 2);
+        ctx.stroke();
+      }
+    }
+
+    function createConfetti(num = 100) {
+      confettiElements = [];
+      for (let i = 0; i < num; i++) {
+        confettiElements.push(new ConfettiParticle());
+      }
+    }
+
+    function runConfetti() {
+      ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      confettiElements.forEach((c) => { c.update(); c.draw(); });
+      confettiAnimationFrame = requestAnimationFrame(runConfetti);
+    }
+
+    function startConfetti() {
+      confettiCanvas.style.display = "block";
+      createConfetti(150);
+      runConfetti();
+      setTimeout(() => {
+        confettiCanvas.style.display = "none";
+        cancelAnimationFrame(confettiAnimationFrame);
+      }, 2500);
+    }
+
+    // Blink background only on failure
+    function blinkBackground(color, duration, callback) {
+      let visible = true;
+      const blinkInterval = setInterval(() => {
+        document.body.style.backgroundColor = visible ? color : '#f0f4ff';
+        visible = !visible;
+      }, 500);
+
+      setTimeout(() => {
+        clearInterval(blinkInterval);
+        document.body.style.backgroundColor = '#f0f4ff';
+        if (callback) callback();
+      }, duration);
+    }
+
+    // Load user
+    window.onload = function () {
+      currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      if (!currentUser) {
+        alert("You are not logged in! Redirecting...");
+        window.location.href = "index.html";
+        return;
+      }
+      balance = parseInt(currentUser.coins || 0);
+      document.getElementById("patientName").textContent = currentUser.name || "";
+      walletBalanceSpan.textContent = balance;
+    };
+
+    // Payment
+    payBtn.addEventListener("click", () => {
+      if (balance < FEE) {
+        blinkBackground('rgba(255, 0, 0, 0.7)', 3000);
+        buyCoinsBtn.style.display = "block"; // show buy button
+        return;
+      }
+
+      // Successful payment: hide old container
+      paymentContainer.style.opacity = 0;
+      setTimeout(() => { paymentContainer.style.display = 'none'; }, 500);
+
+      document.body.style.backgroundColor = '#16a34a'; // green background
+
+      payBtn.disabled = true;
+      balance -= FEE;
+      currentUser.coins = balance;
+      localStorage.setItem("currentUser", JSON.stringify(currentUser));
+
+      let users = JSON.parse(localStorage.getItem("users")) || [];
+      users = users.map(u => u.email === currentUser.email ? currentUser : u);
+      localStorage.setItem("users", JSON.stringify(users));
+
+      const appointment = {
+        problem: localStorage.getItem("problem"),
+        department: localStorage.getItem("department"),
+        ward: localStorage.getItem("ward"),
+        date: localStorage.getItem("date"),
+        slot: localStorage.getItem("slot"),
+        age: localStorage.getItem("age"),
+      };
+      localStorage.setItem("appointment", JSON.stringify(appointment));
+
+      walletBalanceSpan.textContent = balance;
+
+      // Show success tick
+      successContainer.style.display = "flex";
+      startConfetti();
+
+      setTimeout(() => {
+        window.location.href = "op-sheet.html";
+      }, 2200);
+    });
+
+    // Buy coins button redirect
+    buyCoinsBtn.addEventListener("click", () => {
+      window.location.href = "wallet.html";
+    });
+  </script>
+</body>
+</html>
