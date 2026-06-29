@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Schedule - City Care Hospital</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f6f9;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center; /* Center vertically */
+      min-height: 100vh; /* Make sure it takes full viewport height */
+    }
+
+    h1 {
+      color: #1e3a8a;
+      margin-bottom: 20px;
+    }
+
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      max-width: 500px;
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+
+    .day {
+      width: 90px;
+      height: 90px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.3s;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      border: 2px solid #ccc;
+      font-size: 14px;
+      padding: 5px;
+    }
+
+    .day:hover {
+      transform: scale(1.05);
+    }
+
+    .available {
+      background: #16a34a;
+      color: white;
+      border: 2px solid #0f6d2f;
+    }
+
+    .unavailable {
+      background: #dc2626;
+      color: white;
+      border: 2px solid #991b1b;
+    }
+
+    .reason {
+      font-size: 10px;
+      font-weight: normal;
+      margin-top: 4px;
+      line-height: 1.2;
+    }
+
+    .btn {
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      background: #2563eb;
+      color: white;
+      font-size: 15px;
+      transition: 0.3s;
+    }
+
+    .btn:hover {
+      background: #1e40af;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📅 Admin Schedule (Next 15 Days)</h1>
+  <div id="calendar" class="calendar"></div>
+  <button id="saveBtn" class="btn">💾 Save Schedule</button>
+
+  <script>
+    const calendarEl = document.getElementById("calendar");
+    const saveBtn = document.getElementById("saveBtn");
+
+    // Load saved schedule or initialize
+    let savedSchedule = JSON.parse(localStorage.getItem("schedule")) || {};
+
+    function generateCalendar() {
+      calendarEl.innerHTML = "";
+      let today = new Date();
+
+      for (let i = 0; i < 15; i++) {
+        let day = new Date(today);
+        day.setDate(today.getDate() + i);
+
+        let dateKey = day.toISOString().split("T")[0]; // yyyy-mm-dd
+
+        // Default structure
+        if (!savedSchedule[dateKey]) {
+          savedSchedule[dateKey] = { status: "available", reason: "", bookings: 0 };
+        }
+
+        let info = savedSchedule[dateKey];
+
+        // Auto mark red if max bookings reached
+        if (info.bookings >= 10) {
+          info.status = "unavailable";
+          info.reason = "Max bookings reached";
+        }
+
+        let div = document.createElement("div");
+        div.classList.add("day", info.status === "available" ? "available" : "unavailable");
+
+        // Inner content
+        div.innerHTML = `
+          <div style="font-size:16px;">${day.getDate()}</div>
+          <div style="font-size:12px;">${day.toLocaleString("default", { month: "short" })}</div>
+          ${info.status === "unavailable" && info.reason ? `<div class="reason">${info.reason}</div>` : ""}
+        `;
+
+        // Toggle on click
+        div.addEventListener("click", () => {
+          if (info.status === "available") {
+            // Ask reason for making unavailable
+            let reason = prompt("Enter reason for marking this day as unavailable (holiday or closed):");
+            if (reason && reason.trim() !== "") {
+              info.status = "unavailable";
+              info.reason = reason.trim();
+            }
+          } else {
+            // Currently unavailable → Ask admin choice
+            let confirmAction = confirm("This day is unavailable. Do you want to make it available again?");
+            if (confirmAction) {
+              info.status = "available";
+              info.reason = "";
+            } else {
+              // Update reason instead
+              let newReason = prompt("Update reason for unavailability:", info.reason);
+              if (newReason && newReason.trim() !== "") {
+                info.reason = newReason.trim();
+              }
+            }
+          }
+          generateCalendar();
+        });
+
+        calendarEl.appendChild(div);
+      }
+    }
+
+    // Save button
+    saveBtn.addEventListener("click", () => {
+      localStorage.setItem("schedule", JSON.stringify(savedSchedule));
+      alert("✅ Schedule updated successfully!");
+    });
+
+    generateCalendar();
+  </script>
+<button onclick="goBack()" 
+        style="
+          position: fixed;
+          bottom: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          background-color: #3b82f6; 
+          color: white; 
+          border: none; 
+          padding: 10px 16px; 
+          border-radius: 8px; 
+          font-size: 16px; 
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        ">
+  ← Back
+</button>
+
+<script>
+  function goBack() {
+    window.history.back();
+  }
+</script>
+</body>
+</html>
