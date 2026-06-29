@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Wallet - City Hospital</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f4ff;
+    margin: 0; padding: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 100vh;
+  }
+  h2 {
+    color: #1e40af;
+    margin: 30px 0 10px;
+  }
+  .wallet-box {
+    background: white;
+    padding: 30px 40px;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(30,64,175,0.15);
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+  }
+  .wallet-box p {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 1.5rem;
+  }
+  #coinBalance {
+    color: #2563eb;
+    font-size: 1.8rem;
+  }
+  .topup-options button {
+    margin: 8px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 12px;
+    background: #2563eb;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgba(37, 99, 235, 0.4);
+    transition: background 0.3s, transform 0.3s;
+    min-width: 130px;
+  }
+  .topup-options button:hover {
+    background: #1e3a8a;
+    transform: scale(1.07);
+    box-shadow: 0 6px 12px rgba(30, 58, 138, 0.6);
+  }
+  .back-btn {
+    margin-top: 25px;
+    padding: 12px 22px;
+    border-radius: 12px;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    width: 100%;
+    box-shadow: 0 3px 8px rgba(59,130,246,0.6);
+    transition: background 0.3s ease;
+  }
+  .back-btn:hover {
+    background: #1e40af;
+  }
+  #confetti-canvas {
+    pointer-events: none;
+    position: fixed;
+    top:0; left:0;
+    width: 100vw; height: 100vh;
+    z-index: 9999;
+    display: none;
+  }
+</style>
+</head>
+<body>
+  <h2>💳 My Wallet</h2>
+  <div class="wallet-box">
+    <p>Available MedCoins: <span id="coinBalance">0</span></p>
+    <h3>🔼 Top Up MedCoins</h3>
+    <div class="topup-options">
+      <button onclick="topUp(200)">200 Coins - ₹200</button>
+      <button onclick="topUp(300)">300 Coins - ₹300</button>
+      <button onclick="topUp(500)">500 Coins - ₹500</button>
+    </div>
+    <button class="back-btn" onclick="window.location.href='homepage.html'">⬅ Back</button>
+  </div>
+
+  <canvas id="confetti-canvas"></canvas>
+
+  <script>
+    const canvas = document.getElementById("confetti-canvas");
+    const ctx = canvas.getContext("2d");
+    let confetti = [];
+    let animationFrameId;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    class Confetti {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height - canvas.height;
+        this.radius = Math.random() * 6 + 4;
+        this.color = `hsl(${Math.floor(Math.random()*360)}, 70%, 60%)`;
+        this.speed = Math.random() * 3 + 2;
+        this.tilt = Math.random() * 10 - 10;
+        this.tiltSpeed = Math.random() * 0.1 + 0.05;
+        this.tiltAngle = 0;
+      }
+      update() {
+        this.y += this.speed;
+        this.tiltAngle += this.tiltSpeed;
+        this.tilt = Math.sin(this.tiltAngle) * 15;
+        if(this.y > canvas.height){
+          this.y = -10;
+          this.x = Math.random() * canvas.width;
+          this.speed = Math.random() * 3 + 2;
+        }
+      }
+      draw(){
+        ctx.beginPath();
+        ctx.lineWidth = this.radius / 2;
+        ctx.strokeStyle = this.color;
+        ctx.moveTo(this.x + this.tilt + this.radius / 2, this.y);
+        ctx.lineTo(this.x + this.tilt, this.y + this.tilt + this.radius / 2);
+        ctx.stroke();
+      }
+    }
+
+    function createConfetti(num=100){
+      confetti = [];
+      for(let i=0; i<num; i++){
+        confetti.push(new Confetti());
+      }
+    }
+    function runConfetti(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      confetti.forEach(c=>{
+        c.update();
+        c.draw();
+      });
+      animationFrameId = requestAnimationFrame(runConfetti);
+    }
+    function startConfetti(){
+      canvas.style.display = "block";
+      createConfetti(150);
+      runConfetti();
+      setTimeout(()=>{
+        canvas.style.display = "none";
+        cancelAnimationFrame(animationFrameId);
+      }, 5000);
+    }
+
+    // Load current user and coins
+    let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+    if(!currentUser){
+      alert("You are not logged in! Redirecting...");
+      window.location.href = "index.html";
+    }
+
+    if(!currentUser.coins) {
+      currentUser.coins = 200;
+      localStorage.setItem("currentUser", JSON.stringify(currentUser));
+      let users = JSON.parse(localStorage.getItem("users")) || [];
+      users = users.map(u => u.email === currentUser.email ? currentUser : u);
+      localStorage.setItem("users", JSON.stringify(users));
+    }
+
+    document.getElementById("coinBalance").innerText = currentUser.coins;
+
+    function topUp(amount){
+      currentUser.coins += amount;
+      localStorage.setItem("currentUser", JSON.stringify(currentUser));
+      let users = JSON.parse(localStorage.getItem("users")) || [];
+      users = users.map(u => u.email === currentUser.email ? currentUser : u);
+      localStorage.setItem("users", JSON.stringify(users));
+
+      document.getElementById("coinBalance").innerText = currentUser.coins;
+      startConfetti();
+      
+    }
+  </script>
+</body>
+</html>
