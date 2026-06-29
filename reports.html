@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reports - City Care Hospital</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    background: #eef2ff;
+    padding: 20px;
+    min-height: 100vh;
+  }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #2563eb;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+  }
+  header h1 { margin:0; }
+  .profile img {
+    width: 45px; height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;
+  }
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .report-card {
+    background: white;
+    padding: 18px 22px;
+    margin-bottom: 16px;
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(37,99,235,0.15);
+    animation: slideIn 0.5s ease;
+  }
+  .report-card h3 { margin: 0 0 6px 0; color: #2563eb; }
+  .report-info { font-size: 0.95rem; color: #374151; margin-bottom: 6px; }
+  .report-card a {
+    display: inline-block;
+    margin-top: 8px;
+    color: #1e40af;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .report-card a:hover { text-decoration: underline; }
+  @keyframes slideIn {
+    from {opacity:0; transform: translateY(15px);}
+    to {opacity:1; transform: translateY(0);}
+  }
+  p.empty { text-align: center; color: #6b7280; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Patient Reports</h1>
+  <div class="profile">
+    <span>Admin</span>
+    <img src="https://via.placeholder.com/45" alt="Profile Picture">
+  </div>
+</header>
+
+<div class="container" id="reportsContainer"></div>
+
+<script>
+const reportsContainer = document.getElementById('reportsContainer');
+const reports = JSON.parse(localStorage.getItem('reports')) || [];
+
+if(reports.length === 0) {
+  const p = document.createElement('p');
+  p.className = "empty";
+  p.textContent = "No reports have been sent yet.";
+  reportsContainer.appendChild(p);
+} else {
+  reports.forEach(report => {
+    const card = document.createElement('div');
+    card.className = "report-card";
+
+    card.innerHTML = `
+      <h3>${report.patientName} | ${report.department}</h3>
+      <div class="report-info"><strong>Email:</strong> ${report.email}</div>
+      <div class="report-info"><strong>Sent on:</strong> ${report.date}</div>
+      <a href="${report.fileData}" download="${report.fileName}">Download ${report.fileName}</a>
+    `;
+
+    reportsContainer.appendChild(card);
+  });
+}
+</script>
+<button onclick="goBack()" 
+        style="
+          position: fixed;
+          bottom: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          background-color: #3b82f6; 
+          color: white; 
+          border: none; 
+          padding: 10px 16px; 
+          border-radius: 8px; 
+          font-size: 16px; 
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        ">
+  ← Back
+</button>
+
+<script>
+  function goBack() {
+    window.history.back();
+  }
+</script>
+</body>
+</html>
