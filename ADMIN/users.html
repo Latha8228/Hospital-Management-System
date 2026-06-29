@@ -1,0 +1,251 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Registered Users</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #e0f7ff, #cfefff);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      color: #1e3a8a;
+      font-size: 32px;
+      margin-bottom: 30px;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    .user-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 1200px;
+      animation: slideUp 1.2s ease;
+    }
+
+    .user-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    .user-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+    }
+
+    .user-pic {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #3b82f6;
+      margin-bottom: 15px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .user-info {
+      color: #1e3a8a;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    .user-info strong {
+      display: inline-block;
+      width: 100px;
+      font-weight: bold;
+    }
+
+    .back-btn {
+      background: #1e3a8a;
+      color: white;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 40px;
+      transition: 0.3s;
+    }
+
+    .back-btn:hover {
+      background: #2563eb;
+      transform: scale(1.05);
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      animation: fadeInBg 0.3s ease;
+    }
+
+    .modal-content {
+      background: #fff;
+      border-radius: 16px;
+      padding: 30px;
+      max-width: 500px;
+      width: 100%;
+      position: relative;
+      text-align: center;
+      animation: zoomIn 0.3s ease;
+    }
+
+    .modal-content img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #3b82f6;
+      margin-bottom: 15px;
+    }
+
+    .modal-content .user-info {
+      text-align: left;
+      margin-bottom: 8px;
+    }
+
+    @keyframes zoomIn {
+      0% { transform: scale(0.7); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes fadeInBg {
+      0% { background: rgba(0,0,0,0); }
+      100% { background: rgba(0,0,0,0.5); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📋 Registered Users</h1>
+
+  <div class="user-list" id="userList"></div>
+
+  <button class="back-btn" onclick="window.location.href='dashboard.html'">⬅ Back to Dashboard</button>
+
+  <!-- Modal -->
+  <div id="userModal" class="modal">
+    <div class="modal-content" id="modalContent"></div>
+  </div>
+
+  <script>
+    // Remove duplicate users by email
+    function removeDuplicateUsers(users) {
+      const uniqueEmails = new Set();
+      return users.filter(user => {
+        if (!uniqueEmails.has(user.email)) {
+          uniqueEmails.add(user.email);
+          return true;
+        }
+        return false;
+      });
+    }
+
+    // Render all users
+    function renderUsers() {
+      const userList = document.getElementById("userList");
+      userList.innerHTML = "";
+
+      let storedUsers = JSON.parse(localStorage.getItem("users")) || [];
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      if (currentUser) storedUsers.push(currentUser);
+
+      storedUsers = removeDuplicateUsers(storedUsers);
+
+      if (storedUsers.length === 0) {
+        userList.innerHTML = `<p style="text-align:center; width:100%; color:gray;">No users found.</p>`;
+        return;
+      }
+
+      storedUsers.forEach(user => {
+        const card = document.createElement("div");
+        card.className = "user-card";
+
+        const profileImg = document.createElement("img");
+        profileImg.src = user.profilePic || "default-avatar.png";
+        profileImg.alt = user.name || "User Pic";
+        profileImg.className = "user-pic";
+
+        const info = `
+          <div class="user-info"><strong>Name:</strong> ${user.name || "N/A"}</div>
+          <div class="user-info"><strong>Email:</strong> ${user.email || "N/A"}</div>
+          <div class="user-info"><strong>Phone:</strong> ${user.phone || "N/A"}</div>
+        `;
+
+        card.appendChild(profileImg);
+        card.insertAdjacentHTML("beforeend", info);
+
+        card.addEventListener("click", () => openModal(user));
+
+        userList.appendChild(card);
+      });
+    }
+
+    // Modal logic
+    const modal = document.getElementById("userModal");
+    const modalContent = document.getElementById("modalContent");
+
+    function openModal(user) {
+      modalContent.innerHTML = `
+        <img src="${user.profilePic || 'default-avatar.png'}" alt="Profile Picture">
+        <div class="user-info"><strong>Name:</strong> ${user.name || "N/A"}</div>
+        <div class="user-info"><strong>Email:</strong> ${user.email || "N/A"}</div>
+        <div class="user-info"><strong>Phone:</strong> ${user.phone || "N/A"}</div>
+        <div class="user-info"><strong>Gender:</strong> ${user.gender || "N/A"}</div>
+        <div class="user-info"><strong>DOB:</strong> ${user.dob || "N/A"}</div>
+        <div class="user-info"><strong>Address:</strong> ${user.address || "N/A"}</div>
+      `;
+      modal.style.display = "flex";
+    }
+
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) modal.style.display = "none";
+    });
+
+    window.addEventListener("storage", function(e) {
+      if (e.key === "users" || e.key === "currentUser") renderUsers();
+    });
+
+    renderUsers();
+  </script>
+</body>
+</html>
