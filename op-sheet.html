@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OP Sheet - Appointment Summary</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f3f4f6;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      align-items: center;
+    }
+
+    .op-sheet-container {
+      background: #fff;
+      max-width: 700px;
+      width: 90%;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+      animation: fadeIn 1s ease forwards;
+    }
+
+    h1 {
+      text-align: center;
+      color: #111827;
+      margin-bottom: 25px;
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+
+    .section h2 {
+      font-size: 20px;
+      border-bottom: 2px solid #2563eb;
+      padding-bottom: 5px;
+      margin-bottom: 15px;
+      color: #2563eb;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+
+    .label {
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .value {
+      color: #1f2937;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      text-align: center;
+      padding: 12px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: background-color 0.3s ease;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background: #1d4ed8;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="op-sheet-container">
+    <h1>📝 OP Sheet - Appointment Summary</h1>
+
+    <div class="section" id="patient-info">
+      <h2>Patient Information</h2>
+      <div class="detail-row"><span class="label">Full Name:</span> <span class="value" id="name"></span></div>
+      <div class="detail-row"><span class="label">Email:</span> <span class="value" id="email"></span></div>
+      <div class="detail-row"><span class="label">Phone:</span> <span class="value" id="phone"></span></div>
+      <div class="detail-row"><span class="label">Age:</span> <span class="value" id="age"></span></div>
+      <div class="detail-row"><span class="label">Gender:</span> <span class="value" id="gender"></span></div>
+      <div class="detail-row"><span class="label">Address:</span> <span class="value" id="address"></span></div>
+    </div>
+
+    <div class="section" id="appointment-info">
+      <h2>Appointment Details</h2>
+      <div class="detail-row"><span class="label">Problem Description:</span> <span class="value" id="problem"></span></div>
+      <div class="detail-row"><span class="label">Department:</span> <span class="value" id="department"></span></div>
+      <div class="detail-row"><span class="label">Ward Number:</span> <span class="value" id="ward"></span></div>
+      <div class="detail-row"><span class="label">Date:</span> <span class="value" id="date"></span></div>
+      <div class="detail-row"><span class="label">Slot:</span> <span class="value" id="slot"></span></div>
+    </div>
+
+    <!-- Navigation buttons -->
+    <a href="homepage.html" class="btn">⬅ Back to Home</a>
+    <a href="bookings.html" class="btn">📑 Go to My Bookings</a>
+  </div>
+
+  <script>
+    window.onload = function() {
+      const appointmentData = JSON.parse(localStorage.getItem("appointmentData"));
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+      if (!appointmentData || !currentUser) {
+        alert("Appointment details not found. Redirecting...");
+        window.location.href = "appointment.html";
+        return;
+      }
+
+      // Fill patient info
+      document.getElementById("name").textContent = currentUser.name || "N/A";
+      document.getElementById("email").textContent = currentUser.email || "N/A";
+      document.getElementById("phone").textContent = currentUser.phone || "N/A";
+
+      if (currentUser.dob) {
+        const dob = new Date(currentUser.dob);
+        const age = new Date().getFullYear() - dob.getFullYear();
+        document.getElementById("age").textContent = age;
+      } else {
+        document.getElementById("age").textContent = "N/A";
+      }
+
+      document.getElementById("gender").textContent = currentUser.gender || "N/A";
+      document.getElementById("address").textContent = currentUser.address || "N/A";
+
+      // Fill appointment info
+      document.getElementById("problem").textContent = appointmentData.problem || "N/A";
+      document.getElementById("department").textContent = appointmentData.department || "General";
+      document.getElementById("ward").textContent = appointmentData.ward || "101";
+      document.getElementById("date").textContent = new Date(appointmentData.date).toDateString() || "N/A";
+      document.getElementById("slot").textContent = appointmentData.slot || "N/A";
+
+      // ✅ Save this OP sheet into bookings
+      let appointments = JSON.parse(localStorage.getItem("appointments")) || [];
+      let newOPSheet = {
+        name: currentUser.name,
+        email: currentUser.email,
+        phone: currentUser.phone,
+        age: document.getElementById("age").textContent,
+        gender: currentUser.gender,
+        address: currentUser.address,
+        problem: appointmentData.problem,
+        department: appointmentData.department,
+        ward: appointmentData.ward,
+        date: appointmentData.date,
+        slot: appointmentData.slot
+      };
+      appointments.push(newOPSheet);
+      localStorage.setItem("appointments", JSON.stringify(appointments));
+    };
+  </script>
+</body>
+</html>
