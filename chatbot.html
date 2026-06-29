@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Hospital AI Assistant</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  height:100vh;
+  font-family:Arial,Helvetica,sans-serif;
+}
+
+#overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.35);
+  backdrop-filter: blur(6px);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+#chatContainer{
+  width:95%;
+  max-width:720px;
+  height:520px;
+  background:#fff;
+  border-radius:10px;
+  display:flex;
+  flex-direction:column;
+  box-shadow:0 10px 30px rgba(0,0,0,0.4);
+}
+
+#chatHeader{
+  padding:14px;
+  background:#0066ff;
+  color:white;
+  font-weight:bold;
+  text-align:center;
+  border-radius:10px 10px 0 0;
+}
+
+#chatBox{
+  flex:1;
+  padding:10px;
+  overflow-y:auto;
+  background:#f2f2f2;
+}
+
+.msg{
+  margin:8px 0;
+  padding:8px 10px;
+  border-radius:8px;
+  max-width:80%;
+  font-size:14px;
+}
+
+.user{
+  background:#0066ff;
+  color:white;
+  margin-left:auto;
+}
+
+.bot{
+  background:#e0e0e0;
+  color:black;
+}
+
+#inputArea{
+  display:flex;
+  padding:10px;
+  gap:6px;
+  border-top:1px solid #ccc;
+}
+
+#userInput{
+  flex:1;
+  padding:8px;
+  border-radius:6px;
+  border:1px solid #aaa;
+  outline:none;
+}
+
+#sendBtn{
+  padding:8px 14px;
+  background:#0066ff;
+  color:white;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div id="overlay">
+  <div id="chatContainer">
+    <div id="chatHeader">Hospital AI Assistant</div>
+
+    <div id="chatBox">
+      <div class="msg bot">Hello 👋 Ask me anything about medical services.</div>
+    </div>
+
+    <div id="inputArea">
+      <input id="userInput" type="text" placeholder="Type your question...">
+      <button id="sendBtn">Send</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const overlay=document.getElementById("overlay");
+const chatBox=document.getElementById("chatBox");
+const input=document.getElementById("userInput");
+
+overlay.onclick=()=>window.history.back();
+document.getElementById("chatContainer").onclick=e=>e.stopPropagation();
+
+document.getElementById("sendBtn").onclick=sendMsg;
+input.addEventListener("keypress",e=>{
+  if(e.key==="Enter") sendMsg();
+});
+
+function addMsg(text,type){
+  let div=document.createElement("div");
+  div.className="msg "+type;
+  div.innerText=text;
+  chatBox.appendChild(div);
+  chatBox.scrollTop=chatBox.scrollHeight;
+}
+
+async function sendMsg(){
+  let text=input.value.trim();
+  if(!text) return;
+
+  addMsg(text,"user");
+  input.value="";
+  addMsg("Typing...","bot");
+
+  try{
+    let res=await fetch("/chat",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({message:text})
+    });
+    let data=await res.json();
+    chatBox.lastChild.remove();
+    addMsg(data.reply,"bot");
+  }catch{
+    chatBox.lastChild.remove();
+    addMsg("Server not connected","bot");
+  }
+}
+</script>
+
+</body>
+</html>
