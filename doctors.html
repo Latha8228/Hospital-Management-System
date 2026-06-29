@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Department-wise Doctors - City Care Hospital</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: linear-gradient(to right, #dbeafe, #f0f9ff);
+      color: #1e3a8a;
+    }
+
+    header {
+      background: linear-gradient(90deg, #2563eb, #1e40af);
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      position: relative;
+    }
+
+    .back-btn {
+      position: absolute;
+      left: 20px;
+      top: 20px;
+      background: white;
+      color: #2563eb;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .accordion {
+      width: 100%;
+      max-width: 900px;
+      margin: 30px auto;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      counter-reset: dept-counter;
+    }
+
+    .accordion-item {
+      border-bottom: 1px solid #e0e0e0;
+      counter-increment: dept-counter;
+    }
+
+    .accordion-header {
+      background: #ffffff;
+      padding: 18px;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .accordion-header::before {
+      content: counter(dept-counter);
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #2563eb;
+      color: #fff;
+      font-size: 14px;
+      font-weight: bold;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+
+    .accordion-header:hover {
+      background: #f1faff;
+      color: #2563eb;
+    }
+
+    .icon {
+      font-weight: bold;
+      font-size: 18px;
+      transition: transform 0.3s, color 0.3s;
+      color: #2563eb;
+    }
+
+    .accordion-content {
+      display: none;
+      padding: 18px;
+      background: #f0f0f0;
+      animation: fadeScale 0.5s ease;
+    }
+
+    .accordion-item.active .accordion-content {
+      display: block;
+    }
+
+    @keyframes fadeScale {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .doctor-card {
+      background: white;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .doctor-card strong {
+      display: block;
+      font-size: 16px;
+      color: #1e40af;
+    }
+
+    footer {
+      background: #2563eb;
+      color: white;
+      text-align: center;
+      padding: 10px;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <button class="back-btn" onclick="window.location.href='homepage.html'">← Back</button>
+    City Care Hospital - Doctors
+  </header>
+
+  <div class="accordion">
+
+    <!-- Orthopedic -->
+    <div class="accordion-item">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        Orthopedic Department <span class="icon">▶</span>
+      </div>
+      <div class="accordion-content">
+        <div class="doctor-card">
+          <strong>Dr. Krishna</strong>
+          MBBS, MS (Orthopedics) – Joint replacement & fracture management specialist.
+        </div>
+        <div class="doctor-card">
+          <strong>Dr. Anjali</strong>
+          MBBS, D.Ortho – Expert in sports injuries and arthritis care.
+        </div>
+      </div>
+    </div>
+
+    <!-- Neurology -->
+    <div class="accordion-item">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        Neurology Department <span class="icon">▶</span>
+      </div>
+      <div class="accordion-content">
+        <div class="doctor-card">
+          <strong>Dr. Ramesh</strong>
+          MBBS, DM (Neurology) – Stroke and epilepsy specialist.
+        </div>
+        <div class="doctor-card">
+          <strong>Dr. Meera</strong>
+          MBBS, MD (Neuro) – Dementia and Parkinson's disease specialist.
+        </div>
+      </div>
+    </div>
+
+    <!-- Cardiology -->
+    <div class="accordion-item">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        Cardiology Department <span class="icon">▶</span>
+      </div>
+      <div class="accordion-content">
+        <div class="doctor-card">
+          <strong>Dr. Rajesh</strong>
+          MBBS, DM (Cardiology) – Expert in angioplasty and bypass surgery.
+        </div>
+        <div class="doctor-card">
+          <strong>Dr. Kavita</strong>
+          MBBS, MD – Specialist in arrhythmia and hypertension.
+        </div>
+      </div>
+    </div>
+
+    <!-- ENT -->
+    <div class="accordion-item">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        ENT Department <span class="icon">▶</span>
+      </div>
+      <div class="accordion-content">
+        <div class="doctor-card">
+          <strong>Dr. Sameer</strong>
+          MBBS, MS (ENT) – Specialist in sinus and ear surgeries.
+        </div>
+        <div class="doctor-card">
+          <strong>Dr. Priya</strong>
+          MBBS, MS – Expert in hearing disorders and allergy care.
+        </div>
+      </div>
+    </div>
+
+    <!-- Dermatology -->
+    <div class="accordion-item">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        Dermatology Department <span class="icon">▶</span>
+      </div>
+      <div class="accordion-content">
+        <div class="doctor-card">
+          <strong>Dr. Neha</strong>
+          MBBS, MD (Dermatology) – Specialist in acne and skin rejuvenation.
+        </div>
+        <div class="doctor-card">
+          <strong>Dr. Arjun</strong>
+          MBBS, MD – Expert in psoriasis and cosmetic dermatology.
+        </div>
+      </div>
+    </div>
+
+    <!-- Gynecology -->
+    <div class="accordion-item">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        Gynecology & Obstetrics <span class="icon">▶</span>
+      </div>
+      <div class="accordion-content">
+        <div class="doctor-card">
+          <strong>Dr. Lakshmi</strong>
+          MBBS, MD (Gynecology) – Infertility and maternity care specialist.
+        </div>
+        <div class="doctor-card">
+          <strong>Dr. Divya</strong>
+          MBBS, DGO – Menstrual disorder and preventive women's health expert.
+        </div>
+      </div>
+    </div>
+
+    <!-- Oncology -->
+    <div class="accordion-item">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        Oncology Department <span class="icon">▶</span>
+      </div>
+      <div class="accordion-content">
+        <div class="doctor-card">
+          <strong>Dr. Sanjay</strong>
+          MBBS, DM (Oncology) – Chemotherapy & radiation specialist.
+        </div>
+        <div class="doctor-card">
+          <strong>Dr. Alka</strong>
+          MBBS, MD – Immunotherapy & palliative care specialist.
+        </div>
+      </div>
+    </div>
+
+    <!-- Nephrology -->
+    <div class="accordion-item">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        Nephrology Department <span class="icon">▶</span>
+      </div>
+      <div class="accordion-content">
+        <div class="doctor-card">
+          <strong>Dr. Mohan</strong>
+          MBBS, DM (Nephrology) – Kidney transplant and dialysis specialist.
+        </div>
+        <div class="doctor-card">
+          <strong>Dr. Sneha</strong>
+          MBBS, MD – Expert in chronic kidney disease management.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+  <script>
+    function toggleAccordion(header) {
+      const item = header.parentElement;
+      const allItems = document.querySelectorAll(".accordion-item");
+
+      allItems.forEach(i => {
+        if (i !== item) i.classList.remove("active");
+      });
+
+      item.classList.toggle("active");
+    }
+  </script>
+
+</body>
+</html>
