@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>City Care Hospital</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .glow-btn {
+      display: block;
+      margin: 0 auto;
+      padding: 15px 30px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #fff;
+      background: #007bff;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 0 10px #007bff, 0 0 20px #00bfff, 0 0 30px #1e90ff;
+      transition: 0.3s ease-in-out;
+    }
+
+    .glow-btn:hover {
+      box-shadow: 0 0 20px #00bfff, 0 0 40px #1e90ff, 0 0 60px #4682b4;
+      background: #0056b3;
+    }
+
+    body {
+      background: #ffffff;
+      color: #1e3a8a;
+    }
+
+    nav {
+      background-color: #2563eb;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    nav .logo {
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 25px;
+    }
+
+    nav ul li {
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    nav ul li:hover {
+      text-decoration: underline;
+    }
+
+    #menu-btn {
+      font-size: 28px;
+      cursor: pointer;
+      margin-right: 20px;
+    }
+
+    .side-menu {
+      position: fixed;
+      top: 0;
+      left: -250px;
+      width: 220px;
+      height: 100%;
+      background: #1e3a8a;
+      color: white;
+      padding-top: 60px;
+      transition: 0.4s;
+      z-index: 999;
+    }
+
+    .side-menu ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .side-menu ul li {
+      padding: 15px 20px;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      position: relative;
+    }
+
+    .side-menu ul li:hover {
+      background: #3b82f6;
+    }
+
+
+    .notify-dot::after {
+      content: '';
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 10px;
+      height: 10px;
+      background: red;
+      border-radius: 50%;
+      display: none;
+    }
+
+    .notify-dot.active::after {
+      display: block;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #1e3a8a;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.4s ease-in-out;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .scroll-text {
+      background-color: #1d4ed8;
+      color: white;
+      padding: 10px;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .scroll-text p {
+      display: inline-block;
+      animation: scroll-left 20s linear infinite;
+    }
+
+    @keyframes scroll-left {
+      from { transform: translateX(100%); }
+      to { transform: translateX(-100%); }
+    }
+
+    /* Main Content */
+    .container {
+      text-align: center;
+      padding: 50px 20px;
+    }
+
+    .container h1 {
+      font-size: 40px;
+      margin-bottom: 20px;
+      color: #1e40af;
+      position: relative;
+      background: linear-gradient(90deg, #1e40af, #3b82f6, #1e40af);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shine 3s linear infinite;
+    }
+
+    @keyframes shine {
+      to {
+        background-position: 200% center;
+      }
+    }
+
+    .container p {
+      font-size: 18px;
+      max-width: 700px;
+      margin: 0 auto;
+      color: #334155;
+    }
+
+    .process {
+      background: #f9fafb;
+      padding: 50px 20px;
+      text-align: center;
+    }
+
+    .process h2 {
+      font-size: 32px;
+      margin-bottom: 20px;
+      color: #1e3a8a;
+      background: linear-gradient(90deg, #1e3a8a, #3b82f6, #1e3a8a);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shine 3s linear infinite;
+    }
+
+    .process p {
+      max-width: 900px;
+      margin: 0 auto 40px auto;
+      font-size: 18px;
+      color: #374151;
+      line-height: 1.6;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 25px;
+      margin-top: 20px;
+    }
+
+    .step {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: transform 0.3s;
+    }
+
+    .step:hover {
+      transform: translateY(-5px);
+    }
+
+    .step h3 {
+      font-size: 20px;
+      margin-bottom: 10px;
+      color: #2563eb;
+    }
+
+    .step p {
+      font-size: 16px;
+      color: #4b5563;
+    }
+
+
+    .appointment-btn {
+      margin-top: 40px;
+      padding: 15px 30px;
+      background-color: #3b82f6;
+      border: none;
+      color: white;
+      font-size: 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      transition: 0.3s;
+    }
+    
+    .button-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .appointment-btn:hover {
+      background-color: #1e40af;
+    }
+
+    .shine {
+      background-image: linear-gradient(
+        -60deg,
+        #3b82f6 0%,
+        #ffffff 50%,
+        #3b82f6 100%
+      );
+      background-size: 200% 200%;
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+
+    .doctors-btn {
+      position: fixed;
+      bottom: 30px;
+      left: 30px;
+      padding: 12px 25px;
+      background-color: #10b981;
+      border: none;
+      color: white;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      transition: 0.3s;
+      z-index: 998;
+    }
+
+    .doctors-btn:hover {
+      background-color: #059669;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #1e3a8a;
+      color: white;
+      margin-top: 100px;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div id="menu-btn">☰</div>
+    <div class="logo">🏥 City Care Hospital</div>
+    <ul>
+      <li onclick="navigateTo('about_us.html')">About Us</li>
+      <li onclick="navigateTo('department.html')">Departments</li>
+      <li onclick="navigateTo('contact_us.html')">Contact Us</li>
+    </ul>
+  </nav>
+
+  <div id="side-menu" class="side-menu">
+    <ul>
+      <li onclick="navigateTo('profile.html')">👤 Profile</li>
+      <li onclick="navigateTo('wallet.html')">💳 Wallet</li>
+      <li id="reports-menu" class="notify-dot" onclick="openReports()">📄 My Reports</li>
+      <li id="bookings-menu" class="notify-dot" onclick="openBookings()">📅 My Bookings</li>
+      <li id="logout-side">🚪 Logout</li>
+    </ul>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <div class="scroll-text">
+    <p>Welcome to City Care Hospital – Your health is our priority. Open 24/7 with world-class facilities and expert doctors in every department. Book your appointment now!</p>
+  </div>
+  <div class="container">
+    <h1>Welcome to City Care Hospital</h1>
+    <p>
+      Experience the best medical care with our experienced team of doctors, advanced technology, and patient-friendly services. Our departments cover everything from pediatrics to cardiology.
+    </p>
+  </div>
+
+  <div class="button-container">
+    <button id="glow-btn" class="glow-btn" onclick="navigateTo('explore.html')" target="_blank">
+        Explore Different Hospitals
+    </button>
+  </div>
+
+<button onclick="window.location='chatbot.html'"
+style="
+position: fixed;
+bottom: 20px;
+right: 20px;
+z-index: 9999;
+padding: 12px 18px;
+background: #0066ff;
+color: white;
+border: none;
+border-radius: 6px;
+cursor: pointer;
+">
+Ask AI
+</button>
+
+
+  <div class="process">
+    <a href="#appointment-btn" style="display:block;margin-bottom:20px;font-size:18px;color:#2563eb;text-decoration:underline;cursor:pointer;">
+      👉 Click here to book your appointment
+    </a>
+    <h2>Our Appointment & Ward Process</h2>
+    <p>
+      At City Care Hospital, we ensure a smooth and transparent process for booking appointments, detecting wards, and assigning doctors. The following steps explain how your healthcare journey flows within our hospital system.
+    </p>
+    <div class="steps">
+      <div class="step">
+        <h3>1️⃣ Ward Detection</h3>
+        <p>Our system automatically identifies the required ward and department for your problem mentioned .</p>
+      </div>
+      <div class="step">
+        <h3>2️⃣ Select Appointment Date</h3>
+        <p>Choose from available date slots according to your convenience.</p>
+      </div>
+   
+      <div class="step">
+        <h3>3️⃣ Payment & Wallet Options</h3>
+        <p>Pay securely via med-coins & manage your hospital wallet balance.</p>
+      </div>
+      <div class="step">
+        <h3>4️⃣ OP Sheet Generation</h3>
+        <p>Once booked, an OP sheet is generated and stored in your profile for future reference.</p>
+      </div>
+      <div class="step">
+        <h3>5️⃣ Booking Approval</h3>
+        <p>Your booking request is verified and approved by the hospital management.</p>
+      </div>
+      <div class="step">
+        <h3>6️⃣ Doctor Assignment</h3>
+        <p>Finally, a specialized doctor is assigned by hospital management to handle your case for personalized care.</p>
+      </div>
+    </div>
+
+    <button id="appointment-btn" class="appointment-btn" onclick="navigateTo('appointment.html')">📅 Book an Appointment</button>
+  </div>
+
+  <button id="doctors-btn" class="doctors-btn" onclick="navigateTo('doctors.html')">👨‍⚕️ Our Doctors</button>
+
+  <footer>
+    &copy; 2025 City Care Hospital. All Rights Reserved.
+  </footer>
+
+  <script>
+    function navigateTo(page) {
+      window.location.href = page;
+    }
+
+    const menuBtn = document.getElementById("menu-btn");
+    const sideMenu = document.getElementById("side-menu");
+    const doctorsBtn = document.getElementById("doctors-btn");
+
+    menuBtn.addEventListener("click", () => {
+      sideMenu.style.left = "0px";
+      document.body.classList.add("menu-open");
+      doctorsBtn.style.display = "none"; 
+    });
+
+    document.addEventListener("click", (e) => {
+      if (document.body.classList.contains("menu-open")) {
+        if (!sideMenu.contains(e.target) && e.target !== menuBtn) {
+          sideMenu.style.left = "-250px";
+          document.body.classList.remove("menu-open");
+          doctorsBtn.style.display = "block"; 
+        }
+      }
+    });
+
+    document.getElementById('logout-side').addEventListener('click', () => {
+      localStorage.removeItem('currentUser');
+      alert('You have been logged out.');
+      window.location.href = 'login.html';
+    });
+
+    const appointmentBtn = document.getElementById("appointment-btn");
+    const link = document.querySelector(".process a");
+
+    link.addEventListener("click", () => {
+      setTimeout(() => {
+        appointmentBtn.classList.add("shine");
+        setTimeout(() => {
+          appointmentBtn.classList.remove("shine");
+        }, 4000);
+      }, 800);
+    });
+
+    const toast = document.getElementById("toast");
+
+    function showToast(message) {
+      toast.innerText = message;
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 3000);
+    }
+
+    if (localStorage.getItem("newReports") === "true") {
+      document.getElementById("reports-menu").classList.add("active");
+      showToast("📄 You have new reports!");
+    }
+
+    if (localStorage.getItem("newBookings") === "true") {
+      document.getElementById("bookings-menu").classList.add("active");
+      showToast("📅 You have new booking updates!");
+    }
+
+    function openReports() {
+      localStorage.removeItem("newReports");
+      document.getElementById("reports-menu").classList.remove("active");
+      navigateTo('reports.html');
+    }
+
+    function openBookings() {
+      localStorage.removeItem("newBookings");
+      document.getElementById("bookings-menu").classList.remove("active");
+      navigateTo('bookings.html');
+    }
+  </script>
+</body>
+</html>
