@@ -1,0 +1,429 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>City Care Hospital Portal</title>
+  <style>
+    /* Scrollable area inside registration form */
+.scrollable-form {
+  max-height: 350px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+/* Optional: Customize scrollbar for better look */
+.scrollable-form::-webkit-scrollbar {
+  width: 6px;
+}
+.scrollable-form::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollable-form::-webkit-scrollbar-thumb {
+  background: #2563eb;
+  border-radius: 5px;
+}
+
+    /* Body & Background */
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      background: linear-gradient(135deg, #1e3a8a, #2563eb, #3b82f6);
+      overflow: hidden;
+    }
+
+    /* Header / Title */
+    .header {
+      font-size: 40px;
+      font-weight: bold;
+      color: #ffffff;
+      text-align: center;
+      margin-bottom: 25px;
+      letter-spacing: 3px;
+      text-shadow: 2px 2px 10px rgba(0,0,0,0.4);
+      position: relative;
+      display: inline-block;
+      overflow: hidden;
+    }
+
+    /* Shimmer effect on header */
+    .header::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -150%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.8), transparent);
+      animation: shine 3s infinite;
+    }
+
+    @keyframes shine {
+      0% { left: -150%; }
+      50% { left: 150%; }
+      100% { left: 150%; }
+    }
+
+    /* Form Container */
+    .container {
+      background: #e0f2fe;
+      padding: 40px 30px;
+      border-radius: 20px;
+      width: 380px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+      text-align: center;
+      animation: fadeIn 1s ease-in-out;
+      position: relative;
+      overflow: hidden;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Glowing shimmer effect for container border */
+    .container::after {
+      content: "";
+      position: absolute;
+      top: -2px; left: -2px; right: -2px; bottom: -2px;
+      background: linear-gradient(45deg, #1e40af, #3b82f6, #1e3a8a, #60a5fa, #1e40af);
+      z-index: -1;
+      filter: blur(15px);
+      border-radius: 22px;
+      animation: rotateGradient 6s linear infinite;
+    }
+
+    @keyframes rotateGradient {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    h2 {
+      color: #1e3a8a;
+      font-size: 26px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    h2::after {
+      content: "";
+      display: block;
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, #3b82f6, #1e3a8a, #2563eb);
+      margin: 8px auto 0;
+      border-radius: 2px;
+      animation: slideLine 2s linear infinite;
+    }
+
+    @keyframes slideLine {
+      0% { transform: translateX(-100%); }
+      50% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      margin: 6px 0 3px;
+      font-weight: bold;
+      color: #1e3a8a;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-radius: 10px;
+      border: 1px solid #3b82f6;
+      font-size: 14px;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 10px rgba(37,99,235,0.5);
+    }
+
+    .password-box { position: relative; }
+    .toggle-password {
+      position: absolute;
+      top: 30%;
+      right: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #2563eb;
+      user-select: none;
+    }
+
+    .error {
+      color: red;
+      font-size: 14px;
+      text-align: left;
+      margin-top: -6px;
+      margin-bottom: 10px;
+      display: none;
+    }
+
+    button {
+      width: 100%;
+      background: #1e40af;
+      color: #fff;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::before {
+      content:"";
+      position:absolute;
+      top:0; left:-100%;
+      width:100%; height:100%;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.4), transparent);
+      transition:0.3s;
+      transform: skewX(-20deg);
+    }
+
+    button:hover::before {
+      left:100%;
+    }
+
+    button:hover {
+      background: #2563eb;
+      transform: scale(1.03);
+    }
+
+    .toggle-link {
+      margin-top: 12px;
+      font-size: 14px;
+    }
+
+    .toggle-link a {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .toggle-link a:hover { text-decoration: underline; }
+
+    .hidden { display: none; }
+
+    /* Notification panel */
+    .notification {
+      position: fixed;
+      top: -80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #16a34a;
+      color: #fff;
+      padding: 15px 35px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      font-weight: bold;
+      transition: top 0.6s ease-in-out;
+      z-index: 1000;
+    }
+    .notification.show { top: 20px; }
+    
+.admin-login-btn{
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 10px 18px;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(6px);
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 8px;
+  z-index: 2000;
+  border: 1px solid rgba(255,255,255,0.4);
+  transition: all 0.3s ease;
+}
+
+.admin-login-btn:hover{
+  background: rgba(0,0,0,0.55);
+  transform: scale(1.05);
+}
+
+  </style>
+</head>
+<body>
+  <a href="/ADMIN/index.html" class="admin-login-btn">ADMIN</a>
+  <div class="header">CITY CARE HOSPITAL</div>
+
+  <div class="container">
+    <!-- Login Form -->
+    <div id="loginForm">
+      <h2>User Login</h2>
+      <label>Email or Mobile</label>
+      <input type="text" id="loginEmail">
+      <label>Password</label>
+      <div class="password-box">
+        <input type="password" id="loginPassword">
+        <span class="toggle-password" onclick="togglePassword('loginPassword', this)">👁</span>
+      </div>
+      <div id="loginError" class="error"></div>
+      <button onclick="login()">Login</button>
+      <p class="toggle-link">Don't have an account? <a onclick="toggleForm()">Register here</a></p>
+    </div>
+
+    <!-- Register Form -->
+    <!-- Register Form -->
+<div id="registerForm" class="hidden">
+  <h2>User Register</h2>
+  <div class="scrollable-form">
+    <label>Full Name</label>
+    <input type="text" id="regName">
+
+    <label>Email ID</label>
+    <input type="email" id="regEmail">
+    <div id="emailError" class="error"></div>
+
+    <label>Mobile Number</label>
+    <input type="text" id="regPhone">
+
+    <label>Gender</label>
+    <select id="regGender">
+      <option value="">Select Gender</option>
+      <option>Male</option>
+      <option>Female</option>
+      <option>Other</option>
+    </select>
+
+    <label>Date of Birth</label>
+    <input type="date" id="regDob">
+
+    <label>Create Password</label>
+    <div class="password-box">
+      <input type="password" id="regPassword">
+      <span class="toggle-password" onclick="togglePassword('regPassword', this)">👁</span>
+    </div>
+    <div id="passwordError" class="error"></div>
+
+    <label>Confirm Password</label>
+    <div class="password-box">
+      <input type="password" id="regConfirmPassword">
+      <span class="toggle-password" onclick="togglePassword('regConfirmPassword', this)">👁</span>
+    </div>
+
+    <label>Address</label>
+    <textarea id="regAddress" rows="3"></textarea>
+  </div>
+
+  <button onclick="register()">Register</button>
+  <p class="toggle-link">Already have an account? <a onclick="toggleForm()">Login here</a></p>
+</div>
+
+
+  <script>
+    const validUsers = [
+      { email: "user@example.com", password: "pass123" },
+      { email: "admin@example.com", password: "admin123" }
+    ];
+
+    function toggleForm() {
+      document.getElementById("loginForm").classList.toggle("hidden");
+      document.getElementById("registerForm").classList.toggle("hidden");
+      const err = document.getElementById("loginError");
+      if (err) err.style.display = "none";
+    }
+
+    function togglePassword(fieldId, el) {
+      const field = document.getElementById(fieldId);
+      if (field.type === "password") {
+        field.type = "text";
+        el.textContent = "🙈";
+      } else {
+        field.type = "password";
+        el.textContent = "👁";
+      }
+    }
+
+    function login() {
+      let email = document.getElementById("loginEmail").value.trim();
+      let password = document.getElementById("loginPassword").value.trim();
+      let error = document.getElementById("loginError");
+      error.style.display = "none";
+
+      if (!email || !password) {
+        error.textContent = "Please fill all fields!";
+        error.style.display = "block";
+        return;
+      }
+
+      let storedUsers = JSON.parse(localStorage.getItem("users")) || [];
+      let allUsers = validUsers.concat(storedUsers);
+      const match = allUsers.find(u => u.email === email && u.password === password);
+
+      if (!match) {
+        error.textContent = "Invalid email or password!";
+        error.style.display = "block";
+        return;
+      }
+
+      localStorage.setItem("currentUser", JSON.stringify(match));
+      window.location.href = "homepage.html";
+    }
+
+    function register() {
+      let email = document.getElementById("regEmail").value.trim();
+      let password = document.getElementById("regPassword").value;
+      let confirmPassword = document.getElementById("regConfirmPassword").value;
+
+      let emailError = document.getElementById("emailError");
+      let passwordError = document.getElementById("passwordError");
+      emailError.style.display = "none";
+      passwordError.style.display = "none";
+
+      let emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
+      if (!email.match(emailPattern)) {
+        emailError.textContent = "Invalid email format!";
+        emailError.style.display = "block";
+        return;
+      }
+      if (password.length < 6) {
+        passwordError.textContent = "Password must be at least 6 characters!";
+        passwordError.style.display = "block";
+        return;
+      }
+      if (password !== confirmPassword) {
+        passwordError.textContent = "Passwords do not match!";
+        passwordError.style.display = "block";
+        return;
+      }
+
+      let name = document.getElementById("regName").value.trim();
+      let phone = document.getElementById("regPhone").value.trim();
+      let gender = document.getElementById("regGender").value;
+      let dob = document.getElementById("regDob").value;
+      let address = document.getElementById("regAddress").value.trim();
+
+      let users = JSON.parse(localStorage.getItem("users")) || [];
+      users.push({ name, email, phone, gender, dob, address, password });
+      localStorage.setItem("users", JSON.stringify(users));
+
+      alert("Registration successful! Please login.");
+      toggleForm();
+    }
+  </script>
+</body>
+</html>
